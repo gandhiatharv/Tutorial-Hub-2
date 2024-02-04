@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to the Escape Room</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        h1, h2 {
+            color: #007bff;
+        }
+        .agent-input {
+            margin-top: 10px;
+            padding: 8px;
+            font-size: 14px;
+        }
+        .agent-button {
+            margin: 10px;
+            padding: 8px 16px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Home Page -->
+    <div id="home">
+        <h1>Welcome to the Escape Room</h1>
+
+        <!-- 12 Subheadings and Input Fields -->
+        <div>
+            <h2>Agent ShadowCipher</h2>
+            <input type="text" class="agent-input" id="agent1Input" placeholder="Who will be this agent?">
+        </div>
+        
+        <div>
+            <h2>Agent PhantomStriker</h2>
+            <input type="text" class="agent-input" id="agent2Input" placeholder="Who will be this agent?">
+        </div>
+        
+        <div>
+            <h2>Agent EclipseEnigma</h2>
+            <input type="text" class="agent-input" id="agent3Input" placeholder="Who will be this agent?">
+        </div>
+        
+        <div>
+            <h2>Agent VortexVigilante</h2>
+            <input type="text" class="agent-input" id="agent4Input" placeholder="Who will be this agent?">
+        </div>
+        
+        <div>
+            <h2>Agent SteelSpectre</h2>
+            <input type="text" class="agent-input" id="agent5Input" placeholder="Who will be this agent?">
+        </div>
+        
+        <div>
+            <h2>Agent QuantumQuasar</h2>
+            <input type="text" class="agent-input" id="agent6Input" placeholder="Who will be this agent?">
+        </div>
+        
+        <div>
+            <h2>Agent NebulaNinja</h2>
+            <input type="text" class="agent-input" id="agent7Input" placeholder="Who will be this agent?">
+        </div>
+        
+        <div>
+            <h2>Agent CipherSerpent</h2>
+            <input type="text" class="agent-input" id="agent8Input" placeholder="Who will be this agent?">
+        </div>
+        
+        <div>
+            <h2>Agent AstralAssassin</h2>
+            <input type="text" class="agent-input" id="agent9Input" placeholder="Who will be this agent?">
+        </div>
+        
+        <div>
+            <h2>Agent ThunderWraith</h2>
+            <input type="text" class="agent-input" id="agent10Input" placeholder="Who will be this agent?">
+        </div>
+        
+        <div>
+            <h2>Agent NovaPhantom</h2>
+            <input type="text" class="agent-input" id="agent11Input" placeholder="Who will be this agent?">
+        </div>
+        
+        <div>
+            <h2>Agent BlazeBarricade</h2>
+            <input type="text" class="agent-input" id="agent12Input" placeholder="Who will be this agent?">
+        </div>
+        
+        <!-- Repeat the above two blocks for the remaining agents -->
+
+        <button class="agent-button" onclick="goToAgentsPage()">Next</button>
+    </div>
+
+    <!-- Agents Page -->
+    <div id="agents" style="display: none;">
+        <h1>Are you ready?</h1>
+        
+        <!-- Agent buttons will be dynamically created based on the inputs on the home page -->
+        <div id="agentButtonsContainer"></div>
+
+        <div class="input-container">
+            <button class="agent-button" onclick="goToFormPage()">YES!</button>
+        </div>
+    </div>
+
+    <script>
+        function goToAgentsPage() {
+            document.getElementById('home').style.display = 'none';
+            document.getElementById('agents').style.display = 'block';
+
+            // Dynamically create agent buttons based on the inputs on the home page
+            var agentButtonsContainer = document.getElementById('agentButtonsContainer');
+            for (let i = 1; i <= 12; i++) {
+                let agentName = document.getElementById('agent' + i + 'Input').value;
+                if (agentName !== '') {
+                    let agentButton = document.createElement('button');
+                    agentButton.className = 'agent-button';
+                    agentButton.innerHTML = 'Agent ' + i;
+                    agentButton.onclick = function () {
+                        goToFormPage(agentName);
+                    };
+                    agentButtonsContainer.appendChild(agentButton);
+                }
+            }
+        }
+
+        function goToFormPage(agentName) {
+            // You can replace the form link with your own Google Form link
+          
+            window.location.href = 'game.html';
+        }
+    </script>
+
+</body>
+</html>

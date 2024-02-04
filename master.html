@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congratulations!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        h1 {
+            color: #007bff;
+        }
+        #ok-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Congrats for completing this part of the escape room!</h1>
+    <p>Now move on to the master bedroom! Solve the riddle waiting for you there.</p>
+
+    <!-- Ok Button -->
+    <button id="ok-button" onclick="moveToMaster1()">Ok</button>
+
+    <script>
+        function moveToMaster1() {
+            // Redirect to master1.html
+            window.location.href = 'master1.html';
+        }
+    </script>
+
+</body>
+</html>
