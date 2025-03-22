@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Randomized Fill-in-the-Blanks Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #output {
+            margin-top: 20px;
+            white-space: pre-wrap; /* Preserve formatting */
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .blank-container {
+            display: inline-block;
+            margin-right: 10px;
+        }
+        input[type="text"] {
+            width: 100px;
+            padding: 5px;
+            margin-left: 5px;
+        }
+        .blank {
+            font-weight: bold; /* Bold styling for blanks */
+            text-decoration: underline; /* Optional: Add underline for blanks */
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+    <h1>Randomized Fill-in-the-Blanks Generator</h1>
+
+    <textarea id="inputText" placeholder="Paste your text here..."></textarea><br>
+
+    <label for="blankPercentage">Percentage of words to blank out:</label>
+    <input type="number" id="blankPercentage" value="20" min="1" max="100"> %
+    <br><br>
+
+    <button onclick="generateBlanks()">Generate Fill-in-the-Blanks</button>
+    <button onclick="exportToPDF()">Export to PDF</button>
+
+    <div id="output"></div>
+
+    <script>
+        function generateBlanks() {
+            const text = document.getElementById('inputText').value;
+            const blankPercentage = document.getElementById('blankPercentage').value;
+            if (text.trim() === "") {
+                alert("Please enter some text.");
+                return;
+            }
+
+            // Split the text into words and preserve the line breaks
+            const lines = text.split('\n');
+            const words = lines.join(' ').split(/\s+/); // Flatten to one array of words
+            const totalWords = words.length;
+            const numBlanks = Math.round((blankPercentage / 100) * totalWords);
+
+            // Create an array to store which words to blank
+            const indices = Array.from({ length: totalWords }, (_, i) => i);
+            shuffleArray(indices); // Shuffle to randomize the indices
+
+            // Replace the words at the first "numBlanks" indices with blanks
+            const wordsWithBlanks = words.map((word, index) => {
+                if (indices.indexOf(index) < numBlanks) {
+                    return generateBlankInput(); // Return blank input with label
+                }
+                return word;
+            });
+
+            // Rebuild the text with the same structure (keeping line breaks)
+            let output = '';
+            let wordIndex = 0;
+            lines.forEach(line => {
+                const lineWords = line.split(/\s+/); // Split line into words
+                let lineOutput = '';
+                
+                lineWords.forEach((word, idx) => {
+                    lineOutput += wordsWithBlanks[wordIndex++] + ' '; // Add each word from the mapped array
+                });
+
+                output += lineOutput.trim() + '<br><br>'; // Add line break after each line and double spacing
+            });
+
+            // Display the result with HTML rendering, preserving new lines and formatting
+            document.getElementById('output').innerHTML = output;
+        }
+
+        // Function to generate the blank input with label (a), b), c), ..., aa), bb), cc), ...)
+        let blankCounter = 0;
+        function generateBlankInput() {
+            const letters = 'abcdefghijklmnopqrstuvwxyz';
+            let label = '';
+            let count = blankCounter++;
+
+            if (count < 26) {
+                label = `${letters[count]})`;
+            } else {
+                let firstChar = Math.floor(count / 26) - 1; // calculate the first letter
+                let secondChar = count % 26; // calculate the second letter
+                label = `${letters[firstChar]}${letters[secondChar]})`;
+            }
+
+            // Return the blank with input field next to the label
+            return `<div class="blank-container"><span class="blank">${label}</span><input type="text" class="blank-input"></div>`;
+        }
+
+        // Function to shuffle an array (Fisher-Yates Shuffle)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+            }
+        }
+
+        // Export the content to PDF
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const text = document.getElementById('output').innerText;  // Get plain text without HTML tags
+            
+            // Add the text to the PDF document
+            doc.text(text, 10, 10);
+            
+            // Save the PDF
+            doc.save('fill_in_the_blanks.pdf');
+        }
+    </script>
+
+</body>
+</html>
