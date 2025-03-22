@@ -188,19 +188,21 @@
       }
   
       function generateBlankInput(count) {
-          const letters = 'abcdefghijklmnopqrstuvwxyz';
-          let label = '';
-  
-          if (count < 26) {
-              label = `${letters[count]})`;
-          } else {
-              let firstChar = Math.floor(count / 26) - 1;
-              let secondChar = count % 26;
-              label = `${letters[firstChar]}${letters[secondChar]})`;
-          }
-  
-          return `<span class="blank-container"><span class="blank-label">${label}</span><input type="text" oninput="checkTextInput(this)"></span>`;
-      }
+    const letters = 'abcdefghijklmnopqrstuvwxyz';
+    let label = '';
+
+    // Loop to generate labels based on the count
+    let tempCount = count;
+    while (tempCount >= 0) {
+        label = letters[tempCount % 26] + label;
+        tempCount = Math.floor(tempCount / 26) - 1;
+        if (tempCount < 0) break;
+    }
+
+    label += ')';
+    return `<span class="blank-container"><span class="blank-label">${label}</span><input type="text" oninput="checkTextInput(this)"></span>`;
+}
+
   
       function shuffleArray(array) {
           for (let i = array.length - 1; i > 0; i--) {
