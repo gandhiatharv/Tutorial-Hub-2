@@ -3,149 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Randomized Fill-in-the-Blanks Generator</title>
+    <title>Fill-in-the-Blanks Generator</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+        /* Global Styling */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
         }
+
+        body {
+            background-color: #f4f7fc;
+            color: #333;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        /* Textarea */
         textarea {
             width: 100%;
             height: 150px;
-            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            font-size: 16px;
+            resize: vertical;
+            transition: 0.3s;
         }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
+
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0px 0px 8px rgba(52, 152, 219, 0.2);
         }
-        button:hover {
-            background-color: #45a049;
-        }
-        #output {
+
+        /* Button Styling */
+        .button-container {
+            display: flex;
+            justify-content: space-between;
             margin-top: 20px;
-            white-space: pre-wrap; /* Preserve formatting */
-            font-family: 'Courier New', Courier, monospace;
         }
+
+        button {
+            flex: 1;
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin: 0 5px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Output Section */
+        .output {
+            margin-top: 25px;
+            padding: 15px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            min-height: 150px;
+            font-size: 16px;
+            white-space: pre-wrap;
+        }
+
         .blank-container {
-            display: inline-block;
-            margin-right: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin: 3px;
         }
+
+        .blank-label {
+            font-weight: bold;
+            color: #34495e;
+        }
+
         input[type="text"] {
-            width: 100px;
+            width: 80px;
             padding: 5px;
-            margin-left: 5px;
+            font-size: 14px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            transition: 0.3s;
         }
-        .blank {
-            font-weight: bold; /* Bold styling for blanks */
-            text-decoration: underline; /* Optional: Add underline for blanks */
+
+        input[type="text"]:focus {
+            border-color: #3498db;
+            outline: none;
         }
+        input[type="text"].has-text {
+            background-color: #fff9c4; /* Light yellow */
+        }
+
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-    <h1>Randomized Fill-in-the-Blanks Generator</h1>
+    <div class="container">
+        <h1>Fill-in-the-Blanks Generator</h1>
 
-    <textarea id="inputText" placeholder="Paste your text here..."></textarea><br>
+        <textarea id="inputText" placeholder="Paste your text here..."></textarea>
 
-    <label for="blankPercentage">Percentage of words to blank out:</label>
-    <input type="number" id="blankPercentage" value="20" min="1" max="100"> %
-    <br><br>
+        <label for="blankPercentage" style="display: block; margin-top: 10px; font-size: 14px;">Blank Out Percentage:</label>
+        <input type="number" id="blankPercentage" value="20" min="1" max="100" style="width: 100px; padding: 6px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px;">
 
-    <button onclick="generateBlanks()">Generate Fill-in-the-Blanks</button>
-    <button onclick="exportToPDF()">Export to PDF</button>
+        <div class="button-container">
+            <button onclick="generateBlanks()">Generate Blanks</button>
+            <button onclick="exportToPDF()">Export to PDF</button>
+            <button onclick="copyToClipboard()">Copy to Clipboard</button>
+        </div>
 
-    <div id="output"></div>
+        <div id="output" class="output"></div>
+    </div>
 
     <script>
-        function generateBlanks() {
-            const text = document.getElementById('inputText').value;
-            const blankPercentage = document.getElementById('blankPercentage').value;
-            if (text.trim() === "") {
-                alert("Please enter some text.");
-                return;
-            }
-
-            // Split the text into words and preserve the line breaks
-            const lines = text.split('\n');
-            const words = lines.join(' ').split(/\s+/); // Flatten to one array of words
-            const totalWords = words.length;
-            const numBlanks = Math.round((blankPercentage / 100) * totalWords);
-
-            // Create an array to store which words to blank
-            const indices = Array.from({ length: totalWords }, (_, i) => i);
-            shuffleArray(indices); // Shuffle to randomize the indices
-
-            // Replace the words at the first "numBlanks" indices with blanks
-            const wordsWithBlanks = words.map((word, index) => {
-                if (indices.indexOf(index) < numBlanks) {
-                    return generateBlankInput(); // Return blank input with label
-                }
-                return word;
-            });
-
-            // Rebuild the text with the same structure (keeping line breaks)
-            let output = '';
-            let wordIndex = 0;
-            lines.forEach(line => {
-                const lineWords = line.split(/\s+/); // Split line into words
-                let lineOutput = '';
-                
-                lineWords.forEach((word, idx) => {
-                    lineOutput += wordsWithBlanks[wordIndex++] + ' '; // Add each word from the mapped array
-                });
-
-                output += lineOutput.trim() + '<br><br>'; // Add line break after each line and double spacing
-            });
-
-            // Display the result with HTML rendering, preserving new lines and formatting
-            document.getElementById('output').innerHTML = output;
-        }
-
-        // Function to generate the blank input with label (a), b), c), ..., aa), bb), cc), ...)
-        let blankCounter = 0;
-        function generateBlankInput() {
-            const letters = 'abcdefghijklmnopqrstuvwxyz';
-            let label = '';
-            let count = blankCounter++;
-
-            if (count < 26) {
-                label = `${letters[count]})`;
-            } else {
-                let firstChar = Math.floor(count / 26) - 1; // calculate the first letter
-                let secondChar = count % 26; // calculate the second letter
-                label = `${letters[firstChar]}${letters[secondChar]})`;
-            }
-
-            // Return the blank with input field next to the label
-            return `<div class="blank-container"><span class="blank">${label}</span><input type="text" class="blank-input"></div>`;
-        }
-
-        // Function to shuffle an array (Fisher-Yates Shuffle)
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
-            }
-        }
-
-        // Export the content to PDF
-        function exportToPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            const text = document.getElementById('output').innerText;  // Get plain text without HTML tags
-            
-            // Add the text to the PDF document
-            doc.text(text, 10, 10);
-            
-            // Save the PDF
-            doc.save('fill_in_the_blanks.pdf');
-        }
-    </script>
-
+      function generateBlanks() {
+          const text = document.getElementById('inputText').value;
+          const blankPercentage = document.getElementById('blankPercentage').value;
+          if (text.trim() === "") {
+              alert("Please enter some text.");
+              return;
+          }
+  
+          // Split text into lines and words
+          const lines = text.split('\n');
+          const words = lines.join(' ').split(/\s+/);
+          const totalWords = words.length;
+          const numBlanks = Math.round((blankPercentage / 100) * totalWords);
+  
+          // Shuffle indices to randomize blanks
+          const indices = Array.from({ length: totalWords }, (_, i) => i);
+          shuffleArray(indices);
+  
+          // Replace words with blanks
+          let blankCounter = 0;
+          const wordsWithBlanks = words.map((word, index) => {
+              if (indices.indexOf(index) < numBlanks) {
+                  return generateBlankInput(blankCounter++); 
+              }
+              return word;
+          });
+  
+          // Preserve line structure
+          let output = '';
+          let wordIndex = 0;
+          lines.forEach(line => {
+              const lineWords = line.split(/\s+/);
+              let lineOutput = '';
+  
+              lineWords.forEach(() => {
+                  lineOutput += wordsWithBlanks[wordIndex++] + ' ';
+              });
+  
+              output += lineOutput.trim() + '<br><br>';
+          });
+  
+          document.getElementById('output').innerHTML = output;
+      }
+  
+      function generateBlankInput(count) {
+          const letters = 'abcdefghijklmnopqrstuvwxyz';
+          let label = '';
+  
+          if (count < 26) {
+              label = `${letters[count]})`;
+          } else {
+              let firstChar = Math.floor(count / 26) - 1;
+              let secondChar = count % 26;
+              label = `${letters[firstChar]}${letters[secondChar]})`;
+          }
+  
+          return `<span class="blank-container"><span class="blank-label">${label}</span><input type="text" oninput="checkTextInput(this)"></span>`;
+      }
+  
+      function shuffleArray(array) {
+          for (let i = array.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [array[i], array[j]] = [array[j], array[i]];
+          }
+      }
+  
+      function exportToPDF() {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+  
+          let content = '';
+          const blanks = document.querySelectorAll('.blank-container');
+  
+          blanks.forEach(blank => {
+              const label = blank.querySelector('.blank-label').innerText;
+              const input = blank.querySelector('input').value || '______'; // Default blank if empty
+              content += `${label} ${input}  \n\n`; // Double spacing
+          });
+  
+          const rawText = document.getElementById('inputText').value;
+          const formattedText = rawText.replace(/\n/g, '\n\n'); // Preserve spacing
+  
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(12);
+          doc.text(formattedText + '\n\n' + content, 10, 10, { maxWidth: 180 });
+  
+          doc.save('fill_in_the_blanks.pdf');
+      }
+  
+      function copyToClipboard() {
+          let textToCopy = "";
+          const outputDiv = document.getElementById("output");
+          
+          // Loop through each child element in the output div
+          outputDiv.childNodes.forEach(node => {
+              if (node.nodeType === Node.TEXT_NODE) {
+                  textToCopy += node.textContent; // Regular text
+              } else if (node.classList && node.classList.contains("blank-container")) {
+                  const label = node.querySelector('.blank-label').innerText;
+                  const input = node.querySelector('input').value || "______"; // Filled or empty
+                  textToCopy += ` ${label} ${input} `;
+              } else if (node.tagName === "BR") {
+                  textToCopy += "\n"; // Preserve line breaks
+              }
+          });
+  
+          navigator.clipboard.writeText(textToCopy).then(() => {
+              alert("Output copied to clipboard!");
+          }).catch(err => {
+              alert("Failed to copy text: " + err);
+          });
+      }
+  
+      // Function to check if there's text in the input and change the background color
+      function checkTextInput(inputElement) {
+          if (inputElement.value.trim() !== "") {
+              inputElement.style.backgroundColor = "#fff9c4"; // Light yellow
+          } else {
+              inputElement.style.backgroundColor = ""; // Reset to default
+          }
+      }
+  </script>
+  
 </body>
 </html>
